@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>blackbillKeyboard — Features &amp; Keymap</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel-2: #1c2230;
+    --border: #2a3340;
+    --text: #e6edf3;
+    --muted: #8b98a9;
+    --accent: #3fb950;
+    --accent-2: #58a6ff;
+    --fn: #bc8cff;
+    --chg: #3fb950;
+    --key: #23303f;
+    --key-txt: #dbe4ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 20px 64px;
+    background: var(--bg); color: var(--text);
+    font: 15px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 38px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .sub { color: var(--muted); margin: 0; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin: 14px 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; background: #0b1016; border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; color: #a5d6ff; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+  .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .feat { background: var(--panel-2); border: 1px solid var(--border); border-radius: 9px; padding: 13px 15px; }
+  .feat b { color: #fff; }
+  .feat p { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0; }
+  th, td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; }
+  th { background: var(--panel-2); color: var(--muted); font-size: 13px; }
+  td .mono { color: #8ce99a; }
+
+  /* keyboard board */
+  .board-scroll { overflow-x: auto; padding: 6px 2px 10px; }
+  .board { position: relative; height: 285px; min-width: 1060px; }
+  .key {
+    position: absolute; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--key); color: var(--key-txt);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 11.5px; font-weight: 600; text-align: center; line-height: 1.15; padding: 2px 4px; overflow: hidden;
+    transition: border-color .15s;
+  }
+  .key .sub2 { font-size: 9px; font-weight: 500; color: #93a1b3; margin-top: 2px; font-family: ui-monospace, monospace; }
+  .key.fn     { background: rgba(188,140,255,.18); border-color: rgba(188,140,255,.6); color: #d7b8ff; }
+  .key.chg    { background: rgba(63,185,80,.20);   border-color: rgba(63,185,80,.65);  color: #8ce99a; }
+  .key.dim    { opacity: .38; }
+  .key .tag { position: absolute; top: 3px; right: 5px; font-size: 8px; font-weight: 700; color: #7d8a99; letter-spacing: .04em; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 15px; height: 15px; border-radius: 4px; border: 1px solid var(--border); display: inline-block; }
+  .note { border-left: 3px solid var(--accent-2); background: rgba(88,166,255,.08); padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 14px 0; }
+  .note b { color: var(--accent-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>blackbillKeyboard — Features &amp; Keymap</h1>
+  <p class="sub">Full-size ANSI · WeAct Black Pill STM32F401 · QMK Firmware · 2 layers · RGB underglow</p>
+
+  <h2>Features</h2>
+  <div class="grid-cards">
+    <div class="feat"><b>Full-size ANSI</b><p>All 104 ANSI keys in the matrix.</p></div>
+    <div class="feat"><b>Two layers</b><p>Base layer, and an <code>FN</code> layer on the Fn key (momentary). Media, RGB and bootloader live here.</p></div>
+    <div class="feat"><b>RGB underglow</b><p>16 × WS2812B (2 × 8-LED strips) under the case. Toggle, effects, hue/sat/val/speed on the FN layer.</p></div>
+    <div class="feat"><b>Bootmagic</b><p>Hold the top-left key (Esc) while plugging in to enter the bootloader.</p></div>
+    <div class="feat"><b>NKRO</b><p>N-key rollover — all keys register simultaneously.</p></div>
+    <div class="feat"><b>Mouse keys</b><p>Cursor control from the keyboard (available as keycodes).</p></div>
+    <div class="feat"><b>Extra keys</b><p>Media and system keycodes (volume, transport, etc.).</p></div>
+  </div>
+
+  <h2>Base layer</h2>
+  <div class="card">
+    <div class="board-scroll"><div class="board" id="baseBoard"></div></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--key)"></i> normal key</span>
+      <span><i class="swatch" style="background:rgba(188,140,255,.18);border-color:rgba(188,140,255,.6)"></i> Fn (hold for layer 1)</span>
+    </div>
+  </div>
+
+  <h2>FN layer (hold Fn)</h2>
+  <div class="card">
+    <p class="sub">Dimmed keys fall through to the base layer unchanged. Green keys are the FN remaps.</p>
+    <div class="board-scroll"><div class="board" id="fnBoard"></div></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:rgba(63,185,80,.20);border-color:rgba(63,185,80,.65)"></i> remapped on FN</span>
+      <span><i class="swatch" style="background:var(--key);opacity:.38"></i> same as base</span>
+    </div>
+    <div class="note">
+      <b>FN + Pause</b> or <b>FN + Esc</b> = <code>QK_BOOT</code> (enter the bootloader). <b>Numpad</b> = RGB underglow.
+      <b>Arrows</b> = media transport, <b>Space</b> = mute, <b>FN + F12</b> = lock the keyboard (press again to unlock).
+    </div>
+  </div>
+
+  <h2>RGB underglow (FN layer)</h2>
+  <table>
+    <tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr>
+    <tr><td>Num</td><td>Toggle underglow on/off</td><td>7</td><td>Hue −</td></tr>
+    <tr><td>/</td><td>Next effect</td><td>8</td><td>Hue +</td></tr>
+    <tr><td>*</td><td>Previous effect</td><td>9</td><td>Saturation −</td></tr>
+    <tr><td>−</td><td>Value / brightness −</td><td>4</td><td>Saturation +</td></tr>
+    <tr><td>+</td><td>Value / brightness +</td><td>5</td><td>Speed −</td></tr>
+    <tr><td></td><td></td><td>6</td><td>Speed +</td></tr>
+  </table>
+  <p class="sub">Default: 16 LEDs, hue 170, 8 brightness/saturation steps. Energised effects include breathing, rainbow mood, rainbow swirl, snake, knight, static gradient, RGB test, alternating and twinkle.</p>
+
+  <h2>Media (FN layer)</h2>
+  <table>
+    <tr><th>Key</th><th>Action</th></tr>
+    <tr><td>←</td><td>Previous track</td></tr>
+    <tr><td>↓</td><td>Play / pause</td></tr>
+    <tr><td>→</td><td>Next track</td></tr>
+    <tr><td>↑</td><td>Stop</td></tr>
+    <tr><td>Space</td><td>Mute</td></tr>
+  </table>
+
+  <h2>Build &amp; flash</h2>
+  <div class="card">
+    <p>From a QMK MSYS / QMK environment, in the firmware checkout:</p>
+    <p class="mono" style="color:#8ce99a">
+      qmk compile -kb blackbillkeyboard -km default<br>
+      qmk flash -kb blackbillkeyboard -km default
+    </p>
+    <p style="margin-top:12px"><b>Enter the bootloader</b> one of three ways:</p>
+    <ul>
+      <li><b>Bootmagic:</b> hold the top-left key (Esc) while plugging in the USB cable.</li>
+      <li><b>Reset button</b> on the Black Pill.</li>
+      <li><b>Keycode:</b> FN + Pause or FN + Esc (<code>QK_BOOT</code>).</li>
+    </ul>
+    <p class="sub">Artifacts land in <code>.build/blackbillkeyboard_default.{bin,hex,elf}</code>.</p>
+  </div>
+
+</div>
+
+<script>
+const U = 44, GAP = 4;
+
+// x/y/w/h come straight from keyboards/blackbillkeyboard/keyboard.json
+const KEYS = [
+  {m:"0,0",  x:0,    y:0,    base:"Esc"},
+  {m:"0,2",  x:2,    y:0,    base:"F1"},
+  {m:"0,3",  x:3,    y:0,    base:"F2"},
+  {m:"0,4",  x:4,    y:0,    base:"F3"},
+  {m:"0,5",  x:5,    y:0,    base:"F4"},
+  {m:"0,6",  x:6.5,  y:0,    base:"F5"},
+  {m:"0,7",  x:7.5,  y:0,    base:"F6"},
+  {m:"0,8",  x:8.5,  y:0,    base:"F7"},
+  {m:"0,9",  x:9.5,  y:0,    base:"F8"},
+  {m:"0,10", x:11,   y:0,    base:"F9"},
+  {m:"0,11", x:12,   y:0,    base:"F10"},
+  {m:"0,12", x:13,   y:0,    base:"F11"},
+  {m:"0,13", x:14,   y:0,    base:"F12"},
+  {m:"0,14", x:15.25,y:0,    base:"PrtSc"},
+  {m:"0,15", x:16.25,y:0,    base:"ScrLk"},
+  {m:"0,16", x:17.25,y:0,    base:"Pause"},
+
+  {m:"1,0",  x:0,    y:1.25, base:"`"},
+  {m:"1,1",  x:1,    y:1.25, base:"1"},
+  {m:"1,2",  x:2,    y:1.25, base:"2"},
+  {m:"1,3",  x:3,    y:1.25, base:"3"},
+  {m:"1,4",  x:4,    y:1.25, base:"4"},
+  {m:"1,5",  x:5,    y:1.25, base:"5"},
+  {m:"1,6",  x:6,    y:1.25, base:"6"},
+  {m:"1,7",  x:7,    y:1.25, base:"7"},
+  {m:"1,8",  x:8,    y:1.25, base:"8"},
+  {m:"1,9",  x:9,    y:1.25, base:"9"},
+  {m:"1,10", x:10,   y:1.25, base:"0"},
+  {m:"1,11", x:11,   y:1.25, base:"−"},
+  {m:"1,12", x:12,   y:1.25, base:"="},
+  {m:"1,13", x:13,   y:1.25, base:"Backspace", w:2},
+  {m:"1,14", x:15.25,y:1.25, base:"Ins"},
+  {m:"1,15", x:16.25,y:1.25, base:"Home"},
+  {m:"1,16", x:17.25,y:1.25, base:"PgUp"},
+  {m:"1,17", x:18.5, y:1.25, base:"Num"},
+  {m:"1,18", x:19.5, y:1.25, base:"/"},
+  {m:"1,19", x:20.5, y:1.25, base:"*"},
+  {m:"1,20", x:21.5, y:1.25, base:"−"},
+
+  {m:"2,0",  x:0,    y:2.25, base:"Tab", w:1.5},
+  {m:"2,1",  x:1.5,  y:2.25, base:"Q"},
+  {m:"2,2",  x:2.5,  y:2.25, base:"W"},
+  {m:"2,3",  x:3.5,  y:2.25, base:"E"},
+  {m:"2,4",  x:4.5,  y:2.25, base:"R"},
+  {m:"2,5",  x:5.5,  y:2.25, base:"T"},
+  {m:"2,6",  x:6.5,  y:2.25, base:"Y"},
+  {m:"2,7",  x:7.5,  y:2.25, base:"U"},
+  {m:"2,8",  x:8.5,  y:2.25, base:"I"},
+  {m:"2,9",  x:9.5,  y:2.25, base:"O"},
+  {m:"2,10", x:10.5, y:2.25, base:"P"},
+  {m:"2,11", x:11.5, y:2.25, base:"["},
+  {m:"2,12", x:12.5, y:2.25, base:"]"},
+  {m:"2,13", x:13.5, y:2.25, base:"\\", w:1.5},
+  {m:"2,14", x:15.25,y:2.25, base:"Del"},
+  {m:"2,15", x:16.25,y:2.25, base:"End"},
+  {m:"2,16", x:17.25,y:2.25, base:"PgDn"},
+  {m:"2,17", x:18.5, y:2.25, base:"7"},
+  {m:"2,18", x:19.5, y:2.25, base:"8"},
+  {m:"2,19", x:20.5, y:2.25, base:"9"},
+  {m:"3,20", x:21.5, y:2.25, base:"+", h:2},
+
+  {m:"3,0",  x:0,    y:3.25, base:"Caps", w:1.75},
+  {m:"3,1",  x:1.75, y:3.25, base:"A"},
+  {m:"3,2",  x:2.75, y:3.25, base:"S"},
+  {m:"3,3",  x:3.75, y:3.25, base:"D"},
+  {m:"3,4",  x:4.75, y:3.25, base:"F"},
+  {m:"3,5",  x:5.75, y:3.25, base:"G"},
+  {m:"3,6",  x:6.75, y:3.25, base:"H"},
+  {m:"3,7",  x:7.75, y:3.25, base:"J"},
+  {m:"3,8",  x:8.75, y:3.25, base:"K"},
+  {m:"3,9",  x:9.75, y:3.25, base:"L"},
+  {m:"3,10", x:10.75,y:3.25, base:";"},
+  {m:"3,11", x:11.75,y:3.25, base:"'"},
+  {m:"3,13", x:12.75,y:3.25, base:"Enter", w:2.25},
+  {m:"3,17", x:18.5, y:3.25, base:"4"},
+  {m:"3,18", x:19.5, y:3.25, base:"5"},
+  {m:"3,19", x:20.5, y:3.25, base:"6"},
+
+  {m:"4,0",  x:0,    y:4.25, base:"Shift", w:2.25},
+  {m:"4,1",  x:2.25, y:4.25, base:"Z"},
+  {m:"4,2",  x:3.25, y:4.25, base:"X"},
+  {m:"4,3",  x:4.25, y:4.25, base:"C"},
+  {m:"4,4",  x:5.25, y:4.25, base:"V"},
+  {m:"4,5",  x:6.25, y:4.25, base:"B"},
+  {m:"4,6",  x:7.25, y:4.25, base:"N"},
+  {m:"4,7",  x:8.25, y:4.25, base:"M"},
+  {m:"4,8",  x:9.25, y:4.25, base:","},
+  {m:"4,9",  x:10.25,y:4.25, base:"."},
+  {m:"4,10", x:11.25,y:4.25, base:"/"},
+  {m:"4,13", x:12.25,y:4.25, base:"RShift", w:2.75},
+  {m:"4,15", x:16.25,y:4.25, base:"\u2191"},
+  {m:"4,17", x:18.5, y:4.25, base:"1"},
+  {m:"4,18", x:19.5, y:4.25, base:"2"},
+  {m:"4,19", x:20.5, y:4.25, base:"3"},
+  {m:"5,20", x:21.5, y:4.25, base:"Enter", h:2},
+
+  {m:"5,0",  x:0,    y:5.25, base:"Ctrl", w:1.25},
+  {m:"5,1",  x:1.25, y:5.25, base:"Win", w:1.25},
+  {m:"5,2",  x:2.5,  y:5.25, base:"Alt", w:1.25},
+  {m:"5,5",  x:3.75, y:5.25, base:"Space", w:6.25},
+  {m:"5,9",  x:10,   y:5.25, base:"Alt", w:1.25},
+  {m:"5,10", x:11.25,y:5.25, base:"Fn", w:1.25, cls:"fn"},
+  {m:"5,12", x:12.5, y:5.25, base:"Menu", w:1.25},
+  {m:"5,13", x:13.75,y:5.25, base:"Ctrl", w:1.25},
+  {m:"5,14", x:15.25,y:5.25, base:"\u2190"},
+  {m:"5,15", x:16.25,y:5.25, base:"\u2193"},
+  {m:"5,16", x:17.25,y:5.25, base:"\u2192"},
+  {m:"5,17", x:18.5, y:5.25, base:"0", w:2},
+  {m:"5,19", x:20.5, y:5.25, base:"."}
+];
+
+// FN-layer remaps, keyed by matrix coordinate.
+const FN = {
+  "0,0":  "Boot",
+  "0,13": "Lock",
+  "0,16": "Boot",
+  "1,17": "RGB Toggle",
+  "1,18": "RGB Next",
+  "1,19": "RGB Prev",
+  "1,20": "Val −",
+  "2,17": "Hue −",
+  "2,18": "Hue +",
+  "2,19": "Sat −",
+  "3,20": "Val +",
+  "3,17": "Sat +",
+  "3,18": "Speed −",
+  "3,19": "Speed +",
+  "4,15": "Stop",
+  "5,5": "Mute",
+  "5,14": "Prev",
+  "5,15": "Play",
+  "5,16": "Next"
+};
+
+function build(container, layer) {
+  container.innerHTML = "";
+  for (const k of KEYS) {
+    const el = document.createElement("div");
+    el.className = "key";
+    const w = k.w || 1, h = k.h || 1;
+    el.style.left = (k.x * U) + "px";
+    el.style.top = (k.y * U) + "px";
+    el.style.width = (w * U - GAP) + "px";
+    el.style.height = (h * U - GAP) + "px";
+
+    if (k.cls) el.classList.add(k.cls);
+
+    if (layer === "base") {
+      el.textContent = k.base;
+    } else {
+      const f = FN[k.m];
+      if (f) {
+        el.classList.add("chg");
+        el.textContent = f;
+      } else {
+        el.classList.add("dim");
+        el.textContent = k.base;
+      }
+    }
+    container.appendChild(el);
+  }
+}
+
+build(document.getElementById("baseBoard"), "base");
+build(document.getElementById("fnBoard"), "fn");
+</script>
+</body>
+</html>

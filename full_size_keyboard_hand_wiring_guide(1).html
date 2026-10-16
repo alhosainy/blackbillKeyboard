@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Size Mechanical Keyboard Hand-Wiring Guide</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#090d16',
+                        cardBg: '#131c31',
+                        accent: '#38bdf8',
+                        accentHover: '#0ea5e9'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-slate-950">
+
+    <header class="sticky top-0 z-50 bg-cardBg/90 backdrop-blur-md border-b border-slate-800 px-4 lg:px-8 py-4 flex items-center justify-between shadow-xl">
+        <div class="flex items-center space-x-3">
+            <div class="bg-sky-500/10 border border-sky-500/30 p-2.5 rounded-xl text-sky-400">
+                <i class="fa-solid fa-keyboard text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-base lg:text-lg font-bold tracking-tight text-white">Full-Size Hand-Wired Build Hub</h1>
+                <p class="text-xs text-slate-400">104 Keys • Black Pill STM32F401 • Rotary Encoder • Dual RGB Underglow</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <span id="progress-badge" class="text-xs font-medium bg-slate-900 text-sky-400 px-3 py-1.5 rounded-full border border-slate-800 shadow-inner">
+                0% Complete
+            </span>
+            <button onclick="resetChecklist()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                Reset
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Navigation Tabs & Dynamic Content Panels -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Navigation Tabs Bar -->
+            <div class="flex flex-wrap gap-2 bg-cardBg p-2 rounded-2xl border border-slate-800">
+                <button onclick="switchTab('checklist')" id="tab-btn-checklist" class="flex-1 min-w-[120px] py-2.5 px-4 rounded-xl text-xs font-bold transition bg-sky-500 text-slate-950 shadow-md">
+                    <i class="fa-solid fa-list-check mr-1.5"></i> Parts Checklist
+                </button>
+                <button onclick="switchTab('matrix')" id="tab-btn-matrix" class="flex-1 min-w-[120px] py-2.5 px-4 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-border-all mr-1.5"></i> 104-Key Matrix
+                </button>
+                <button onclick="switchTab('wiring')" id="tab-btn-wiring" class="flex-1 min-w-[120px] py-2.5 px-4 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-bolt mr-1.5"></i> Wiring Guide
+                </button>
+                <button onclick="switchTab('firmware')" id="tab-btn-firmware" class="flex-1 min-w-[120px] py-2.5 px-4 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-code mr-1.5"></i> QMK Snippets
+                </button>
+            </div>
+
+            <!-- TAB PANEL 1: CHECKLIST -->
+            <section id="panel-checklist" class="tab-panel bg-cardBg border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-basket-shopping text-sky-400"></i> Full-Size Keyboard Parts Checklist
+                    </h3>
+                    <span id="checklist-counter" class="text-xs text-slate-400 font-mono">0/10 Collected</span>
+                </div>
+                <p class="text-xs text-slate-400">Check off your components as you gather them for your bench build.</p>
+                
+                <div id="checklist-container" class="space-y-2.5 pt-2">
+                    <!-- Injected via JavaScript -->
+                </div>
+            </section>
+
+            <!-- TAB PANEL 2: 104-KEY MATRIX -->
+            <section id="panel-matrix" class="tab-panel hidden bg-cardBg border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="pb-3 border-b border-slate-800">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-border-all text-sky-400"></i> 104-Key Full-Size Matrix Architecture
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">A full-size layout requires a grid of rows and columns (typically ~6 rows by 17 columns) to map all 104 switches.</p>
+                </div>
+
+                <div class="space-y-4 text-sm text-slate-300">
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-sky-400 text-xs uppercase tracking-wider">Matrix Grid Strategy</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            For 104 switches, you will divide them into Rows and Columns. Ensure every single switch has a <strong>1N4148 diode</strong> soldered across one pin with the black band pointing consistently toward the column or row bus.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-emerald-400 text-xs uppercase tracking-wider">Rotary Encoder Integration</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Mounted neatly above the numpad or arrow cluster. Connect the 3 quadrature pins (A, GND, B) and the 2 push-button switch pins directly to available GPIOs on your Black Pill.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB PANEL 3: WIRING GUIDE -->
+            <section id="panel-wiring" class="tab-panel hidden bg-cardBg border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+                <div class="pb-3 border-b border-slate-800">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-sky-400"></i> Hand-Wiring & Protection Steps
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Detailed steps for assembling a robust full-size keyboard with dual RGB underglow strips.</p>
+                </div>
+
+                <div class="space-y-4 text-sm">
+                    <div class="border-l-2 border-sky-500 pl-4 space-y-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">Step 1</span>
+                        <h4 class="font-semibold text-white">Diodes & Matrix Busbars</h4>
+                        <p class="text-xs text-slate-300">Solder an 1N4148 diode on every switch pin. Run solid core wire down columns and insulated wire across rows. Double-check for crossing short circuits.</p>
+                    </div>
+
+                    <div class="border-l-2 border-emerald-500 pl-4 space-y-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Step 2</span>
+                        <h4 class="font-semibold text-white">Rotary Encoder Hookup</h4>
+                        <p class="text-xs text-slate-300">Wire encoder A and B pins to GPIOs, center pin to GND, and switch push-button to a separate GPIO for volume and mute control.</p>
+                    </div>
+
+                    <div class="border-l-2 border-pink-500 pl-4 space-y-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-pink-400 bg-pink-500/10 px-2 py-0.5 rounded">Step 3</span>
+                        <h4 class="font-semibold text-white">Dual WS2812B RGB Underglow Chaining</h4>
+                        <p class="text-xs text-slate-300">Chain 2 x 8-LED boards (16 LEDs total) along the base. Wire Board 1 DIN to Black Pill GPIO, DOUT to Board 2 DIN, and share 5V & GND rails.</p>
+                    </div>
+
+                    <div class="border-l-2 border-amber-500 pl-4 space-y-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">Step 4</span>
+                        <h4 class="font-semibold text-white">Electrical Protection Components</h4>
+                        <p class="text-xs text-slate-300">Add a <code class="bg-slate-900 px-1.5 py-0.5 rounded text-amber-300 font-mono">330Ω resistor</code> on the RGB data line and a <code class="bg-slate-900 px-1.5 py-0.5 rounded text-amber-300 font-mono">1000µF capacitor</code> across 5V/GND to protect against voltage spikes.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB PANEL 4: QMK FIRMWARE -->
+            <section id="panel-firmware" class="tab-panel hidden bg-cardBg border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="pb-3 border-b border-slate-800">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-code text-sky-400"></i> QMK Firmware Configuration Snippets
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Key configuration code for your full-size layout, encoder, and dual underglow strips.</p>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-300">
+                        <span>rules.mk</span>
+                        <button onclick="copyCode('code-rules')" class="bg-slate-800 hover:bg-slate-700 text-sky-400 px-2 py-1 rounded transition">Copy</button>
+                    </div>
+                    <pre id="code-rules" class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-sky-200 overflow-x-auto"><code>MCU = STM32F401
+BOOTLOADER = stm32-dfu
+
+ENCODER_ENABLE = yes
+RGBLIGHT_ENABLE = yes
+</code></pre>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-300">
+                        <span>config.h (Matrix, Encoder & 16 LEDs)</span>
+                        <button onclick="copyCode('code-config')" class="bg-slate-800 hover:bg-slate-700 text-sky-400 px-2 py-1 rounded transition">Copy</button>
+                    </div>
+                    <pre id="code-config" class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-sky-200 overflow-x-auto"><code>#pragma once
+
+#define MATRIX_ROWS 6
+#define MATRIX_COLS 17
+
+#define ENCODERS_PAD_A { B3 }
+#define ENCODERS_PAD_B { B4 }
+
+#define WS2812_DI_PIN B0
+#define RGBLED_NUM 16
+</code></pre>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Right Column: Pinout Master Plan & Quick Summary -->
+        <div class="space-y-6">
+            <section class="bg-cardBg border border-slate-800 rounded-2xl p-6 shadow-xl sticky top-24 space-y-4">
+                <div class="pb-3 border-b border-slate-800">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-microchip text-sky-400"></i> Black Pill Pinout Plan
+                    </h3>
+                    <p class="text-xs text-slate-400">STM32F401RCTB safe GPIO allocation</p>
+                </div>
+
+                <div class="space-y-2.5 text-xs">
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                        <span class="text-slate-300 font-semibold">Matrix Rows & Cols</span>
+                        <code class="text-sky-400 font-mono">PA0-PA15, PB5-PB15</code>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                        <span class="text-slate-300 font-semibold">Rotary Encoder</span>
+                        <code class="text-emerald-400 font-mono">B3 (A), B4 (B), B5 (Switch)</code>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                        <span class="text-slate-300 font-semibold">Dual RGB Underglow (16 LEDs)</span>
+                        <code class="text-pink-400 font-mono">B0 (DIN), 5V, GND</code>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                        <span class="text-slate-300 font-semibold">Protection Parts</span>
+                        <code class="text-amber-400 font-mono">330Ω Resistor + 1000µF Cap</code>
+                    </div>
+                </div>
+
+                <div class="bg-sky-500/10 border border-sky-500/20 p-3.5 rounded-xl text-center">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-sky-400 mb-1">Full-Size Build Ready</h4>
+                    <p class="text-xs text-slate-300">All 104 switches mapped with rotary encoder volume control and dual chainable underglow boards!</p>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <footer class="border-t border-slate-800 bg-cardBg/50 py-6 text-center text-xs text-slate-500 mt-auto">
+        <p>Full-Size Mechanical Keyboard Guide &bull; Black Pill STM32F401 &bull; QMK Firmware</p>
+    </footer>
+
+    <script>
+        const checklistData = [
+            { id: 'mcu', name: 'STM32F401RCTB Black Pill Controller', desc: 'Powerful ARM Cortex-M4 MCU with USB-C.' },
+            { id: 'sw', name: '104x Mechanical Switches & Keycaps', desc: 'Sufficient switches and full-size keycap set.' },
+            { id: 'di', name: '104x 1N4148 Diodes', desc: 'One diode per switch to eliminate ghosting.' },
+            { id: 'enc', name: 'Rotary Encoder with Click Switch', desc: 'For volume control, media scrubbing, and mute.' },
+            { id: 'rgb', name: '2x WS2812B 8-LED RGB Underglow Boards', desc: 'Chained together (16 LEDs total) for full-size base glow.' },
+            { id: 'wire', name: 'Solid-Core & Hookup Wire', desc: 'For matrix rows, columns, and power rails.' },
+            { id: 'res330', name: '330Ω Resistor', desc: 'Data line current damper for the RGB underglow strip.' },
+            { id: 'cap', name: '1000µF 10V Electrolytic Capacitor', desc: 'Smooths power drops and spikes during bright RGB flashes.' },
+            { id: 'plate', name: 'Full-Size Case & Switch Plate', desc: 'Enclosure to house your 104-key build.' },
+            { id: 'tools', name: 'Soldering Iron, Solder & Multimeter', desc: 'Essential bench tools for assembly and continuity testing.' }
+        ];
+
+        let checklistState = JSON.parse(localStorage.getItem('fullsize_keyboard_checklist')) || {};
+
+        function renderChecklist() {
+            const container = document.getElementById('checklist-container');
+            container.innerHTML = '';
+            let completed = 0;
+
+            checklistData.forEach(item => {
+                const isChecked = checklistState[item.id] || false;
+                if (isChecked) completed++;
+
+                const div = document.createElement('div');
+                div.className = `p-3.5 rounded-xl border transition flex items-start space-x-3 cursor-pointer ${
+                    isChecked ? 'bg-sky-950/20 border-sky-500/40 text-slate-300' : 'bg-slate-900/60 border-slate-800 text-slate-200 hover:border-slate-700'
+                }`;
+                div.onclick = () => toggleCheck(item.id);
+
+                div.innerHTML = `
+                    <div class="mt-0.5 w-4 h-4 rounded flex items-center justify-center border transition ${isChecked ? 'bg-sky-500 border-sky-400 text-slate-950' : 'border-slate-700 bg-slate-800 text-transparent'}">
+                        <i class="fa-solid fa-check text-[10px]"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-xs ${isChecked ? 'line-through text-slate-400' : 'text-white'}">${item.name}</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">${item.desc}</p>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('checklist-counter').innerText = `${completed}/${checklistData.length} Collected`;
+            const pct = Math.round((completed / checklistData.length) * 100);
+            document.getElementById('progress-badge').innerText = `${pct}% Complete`;
+        }
+
+        function toggleCheck(id) {
+            checklistState[id] = !checklistState[id];
+            localStorage.setItem('fullsize_keyboard_checklist', JSON.stringify(checklistState));
+            renderChecklist();
+        }
+
+        function resetChecklist() {
+            checklistState = {};
+            localStorage.removeItem('fullsize_keyboard_checklist');
+            renderChecklist();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('[id^="tab-btn-"]').forEach(b => {
+                b.className = 'flex-1 min-w-[120px] py-2.5 px-4 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white hover:bg-slate-800';
+            });
+
+            document.getElementById(`panel-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tabId}`).className = 'flex-1 min-w-[120px] py-2.5 px-4 rounded-xl text-xs font-bold transition bg-sky-500 text-slate-950 shadow-md';
+        }
+
+        function copyCode(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            event.target.innerText = 'Copied!';
+            setTimeout(() => { event.target.innerText = 'Copy'; }, 2000);
+        }
+
+        window.onload = renderChecklist;
+    </script>
+</body>
+</html>
